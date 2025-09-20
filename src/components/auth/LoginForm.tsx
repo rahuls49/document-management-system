@@ -5,21 +5,20 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import toast from 'react-hot-toast';
 
 export default function LoginForm() {
   const [step, setStep] = useState<'mobile' | 'otp'>('mobile');
   const [mobile, setMobile] = useState('');
   const [otp, setOtp] = useState('');
-  const [error, setError] = useState('');
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
   const sendOTP = () => {
     if (!mobile || mobile.length !== 10) {
-      setError('Please enter a valid 10-digit mobile number');
+      toast.error('Please enter a valid 10-digit mobile number');
       return;
     }
-    setError('');
     startTransition(async () => {
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/documentManagement/generateOTP`, {
@@ -32,21 +31,21 @@ export default function LoginForm() {
         const data = await response.json();
         if (data.status && data.data === 'OTP Sent on SMS and WhatsApp') {
           setStep('otp');
+          toast.success('OTP sent successfully!');
         } else {
-          setError('Failed to send OTP. Please try again.');
+          toast.error('Failed to send OTP. Please try again.');
         }
       } catch {
-        setError('Network error. Please try again.');
+        toast.error('Network error. Please try again.');
       }
     });
   };
 
   const verifyOTP = () => {
     if (!otp || otp.length !== 6) {
-      setError('Please enter a valid 6-digit OTP');
+      toast.error('Please enter a valid 6-digit OTP');
       return;
     }
-    setError('');
     startTransition(async () => {
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/documentManagement/validateOTP`, {
@@ -58,12 +57,13 @@ export default function LoginForm() {
         });
         const data = await response.json();
         if (data.status) {
+          toast.success('Login successful!');
           router.push('/document-management');
         } else {
-          setError('Invalid OTP. Please try again.');
+          toast.error('Invalid OTP. Please try again.');
         }
       } catch {
-        setError('Network error. Please try again.');
+        toast.error('Network error. Please try again.');
       }
     });
   };
@@ -108,7 +108,6 @@ export default function LoginForm() {
           </Button>
         </>
       )}
-      {error && <p className="text-red-500 text-sm">{error}</p>}
     </>
   );
 }
