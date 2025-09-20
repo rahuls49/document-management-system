@@ -18,6 +18,18 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
+## Environment Setup
+
+1. Copy the environment template:
+```bash
+cp .env.example .env
+```
+
+2. Update the `.env` file with your actual API base URL:
+```env
+NEXT_PUBLIC_API_BASE_URL=https://apis.allsoft.co/api
+```
+
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
 ## Learn More
