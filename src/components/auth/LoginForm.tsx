@@ -5,6 +5,13 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "@/components/ui/input-otp"
+import { Phone, ShieldCheck } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function LoginForm() {
@@ -72,16 +79,21 @@ export default function LoginForm() {
     <>
       {step === 'mobile' ? (
         <>
-          <div>
+          <div className='mb-6'>
             <Label htmlFor="mobile">Mobile Number</Label>
-            <Input
-              id="mobile"
-              type="tel"
-              placeholder="Enter 10-digit mobile number"
-              value={mobile}
-              onChange={(e) => setMobile(e.target.value)}
-              maxLength={10}
-            />
+            <p className="text-sm text-muted-foreground mb-2">Enter your registered mobile number</p>
+            <div className="relative">
+              <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={16} />
+              <Input
+                id="mobile"
+                type="tel"
+                placeholder="Enter 10-digit mobile number"
+                value={mobile}
+                onChange={(e) => setMobile(e.target.value)}
+                maxLength={10}
+                className="pl-10 h-12 text-sm sm:text-2xl"
+              />
+            </div>
           </div>
           <Button onClick={sendOTP} disabled={isPending} className="w-full">
             {isPending ? 'Sending...' : 'Send OTP'}
@@ -89,16 +101,29 @@ export default function LoginForm() {
         </>
       ) : (
         <>
-          <div>
-            <Label htmlFor="otp">OTP</Label>
-            <Input
-              id="otp"
-              type="text"
-              placeholder="Enter 6-digit OTP"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value)}
-              maxLength={6}
-            />
+          <div className='mb-6'>
+            <Label htmlFor="otp" className="flex items-center gap-2">
+              <ShieldCheck size={16} />
+              OTP
+            </Label>
+            <p className="text-sm text-muted-foreground mb-2">Enter the 6-digit code sent to your mobile</p>
+            <div className="flex justify-center">
+              <InputOTP
+                maxLength={6}
+                value={otp}
+                onChange={(value) => setOtp(value)}
+              >
+                <InputOTPGroup>
+                  <InputOTPSlot index={0} className="text-2xl h-12 w-12" />
+                  <InputOTPSlot index={1} className="text-2xl h-12 w-12" />
+                  <InputOTPSlot index={2} className="text-2xl h-12 w-12" />
+                  <InputOTPSeparator />
+                  <InputOTPSlot index={3} className="text-2xl h-12 w-12 border" />
+                  <InputOTPSlot index={4} className="text-2xl h-12 w-12" />
+                  <InputOTPSlot index={5} className="text-2xl h-12 w-12" />
+                </InputOTPGroup>
+              </InputOTP>
+            </div>
           </div>
           <Button onClick={verifyOTP} disabled={isPending} className="w-full">
             {isPending ? 'Verifying...' : 'Verify OTP'}
