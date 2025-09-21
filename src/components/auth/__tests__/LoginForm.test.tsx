@@ -66,7 +66,7 @@ describe('LoginForm', () => {
 		fireEvent.change(screen.getByPlaceholderText(/Enter 10-digit mobile number/i), { target: { value: '1234567890' } });
 		fireEvent.click(screen.getByRole('button', { name: /Send OTP/i }));
 		await waitFor(() => {
-			expect(toast.error).toHaveBeenCalledWith('Failed to send OTP. Please try again.');
+			expect(toast.error).toHaveBeenCalledWith('This Mobile Number is not yet Registered.');
 		});
 	});
 
