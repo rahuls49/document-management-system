@@ -1,3 +1,8 @@
+export const metadata = {
+  title: "Document Management",
+  description: "Manage and organize your documents efficiently.",
+};
+
 export default function DocumentManagementPage() {
   return (
     <div className="min-h-screen flex flex-col">
