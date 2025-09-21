@@ -12,8 +12,6 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp"
 import { Phone, ShieldCheck } from 'lucide-react';
-
-import { useAuthStore } from '@/lib/store';
 import toast from 'react-hot-toast';
 
 export default function LoginForm() {
@@ -42,15 +40,13 @@ export default function LoginForm() {
           setStep('otp');
           toast.success('OTP sent successfully!');
         } else {
-          toast.error('Failed to send OTP. Please try again.');
+          toast.error('This Mobile Number is not yet Registered.');
         }
       } catch {
         toast.error('Network error. Please try again.');
       }
     });
   };
-
-  const setToken = useAuthStore((state) => state.setToken);
 
   const verifyOTP = () => {
     if (!otp || otp.length !== 6) {
@@ -67,8 +63,7 @@ export default function LoginForm() {
           body: JSON.stringify({ mobile_number: mobile, otp }),
         });
         const data = await response.json();
-        if (data.status && data.data?.token) {
-          setToken(data.data.token);
+        if (data.status) {
           toast.success('Login successful!');
           router.push('/document-management');
         } else {
