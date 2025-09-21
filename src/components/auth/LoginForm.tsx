@@ -1,4 +1,7 @@
+
+
 'use client';
+import { useAuthStore } from '@/lib/store';
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
@@ -48,6 +51,7 @@ export default function LoginForm() {
     });
   };
 
+  const setUserData = useAuthStore((state: any) => state.setUserData);
   const verifyOTP = () => {
     if (!otp || otp.length !== 6) {
       toast.error('Please enter a valid 6-digit OTP');
@@ -64,6 +68,10 @@ export default function LoginForm() {
         });
         const data = await response.json();
         if (data.status) {
+          // Store all received information in the store
+          if (data.data) {
+            setUserData(data.data);
+          }
           toast.success('Login successful!');
           router.push('/document-management');
         } else {
