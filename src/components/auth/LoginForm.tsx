@@ -12,6 +12,8 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp"
 import { Phone, ShieldCheck } from 'lucide-react';
+
+import { useAuthStore } from '@/lib/store';
 import toast from 'react-hot-toast';
 
 export default function LoginForm() {
@@ -48,6 +50,8 @@ export default function LoginForm() {
     });
   };
 
+  const setToken = useAuthStore((state) => state.setToken);
+
   const verifyOTP = () => {
     if (!otp || otp.length !== 6) {
       toast.error('Please enter a valid 6-digit OTP');
@@ -63,7 +67,8 @@ export default function LoginForm() {
           body: JSON.stringify({ mobile_number: mobile, otp }),
         });
         const data = await response.json();
-        if (data.status) {
+        if (data.status && data.data?.token) {
+          setToken(data.data.token);
           toast.success('Login successful!');
           router.push('/document-management');
         } else {
