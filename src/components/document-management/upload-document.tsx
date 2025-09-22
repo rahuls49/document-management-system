@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -20,11 +20,11 @@ import toast from "react-hot-toast";
 
 const formSchema = z.object({
   document_date: z.date(),
-  major_head: z.string(),
-  minor_head: z.string(),
+  major_head: z.string().min(1, "Major head is required"),
+  minor_head: z.string().min(1, "Minor head is required"),
   tags: z.array(z.object({ tag_name: z.string() })),
-  document_remarks: z.string(),
-  file: z.instanceof(File),
+  document_remarks: z.string().min(1, "Remarks are required"),
+  file: z.any().refine((file) => file instanceof File, "Please select a file to upload"),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -42,46 +42,74 @@ export default function UploadDocument() {
       minor_head: "",
       tags: [],
       document_remarks: "",
+      file: undefined,
     },
   });
-    // Get token from zustand store
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { userData } = require("@/lib/store").useAuthStore();
-    const token = userData?.token;
+
+  // Reset form when dialog opens
+  useEffect(() => {
+    if (open) {
+      form.reset();
+    }
+  }, [open, form]);
+  // Get token from zustand store
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { userData } = require("@/lib/store").useAuthStore();
+  const { token, user_id, user_name } = userData;
 
   const onSubmit = async (data: FormData) => {
+    // Validate required fields
+    if (!data.file) {
+      toast.error("Please select a file to upload.");
+      return;
+    }
+    if (!data.major_head || !data.minor_head || !data.document_remarks) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+
+    // Format date as dd-mm-yyyy
+    const formattedDate = `${data.document_date.getDate().toString().padStart(2, '0')}-${(data.document_date.getMonth() + 1).toString().padStart(2, '0')}-${data.document_date.getFullYear()}`;
+
+    // Prepare FormData
     const formData = new FormData();
     formData.append("file", data.file);
-    formData.append("data", JSON.stringify({
-      major_head: data.major_head,
-      minor_head: data.minor_head,
-      document_date: `${data.document_date.getDate().toString().padStart(2, '0')}-${(data.document_date.getMonth() + 1).toString().padStart(2, '0')}-${data.document_date.getFullYear()}`,
-      document_remarks: data.document_remarks,
-      tags: data.tags,
-      user_id: "nitin", // Hardcoded for now
-    }));
+    formData.append(
+      "data",
+      JSON.stringify({
+        major_head: data.major_head,
+        minor_head: data.minor_head,
+        document_date: formattedDate,
+        document_remarks: data.document_remarks,
+        tags: data.tags,
+        user_id,
+      })
+    );
+
+    // Debug output
+    console.log("FormData for upload:");
+    for (const [key, value] of formData.entries()) {
+      console.log(key, value);
+    }
 
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/documentManagement/saveDocumentEntry`, {
         method: "POST",
         body: formData,
-          headers: {
-            token: token || "",
-          },
+        headers: {
+          token: token || "",
+        },
       });
-      const data = await response.json();
-      console.log({data});
-      if (data?.status) {
-        console.log("Upload successful");
+      const responseData = await response.json();
+      console.log({ responseData });
+      if (responseData?.status) {
         setOpen(false);
         form.reset();
         toast.success("Document uploaded successfully!");
       } else {
-        console.error("Upload failed");
         toast.error("Failed to upload document.");
       }
     } catch (error) {
-      console.error("Error uploading:", error);
       toast.error("An error occurred during upload.");
     }
   };
@@ -109,7 +137,7 @@ export default function UploadDocument() {
       <DialogTrigger asChild>
         <Button className="text-sm font-medium px-6 py-2">Upload Document</Button>
       </DialogTrigger>
-  <DialogContent className="w-full max-w-lg mx-auto rounded-2xl p-4 sm:p-6 overflow-auto" style={{maxHeight: '90vh'}}> 
+      <DialogContent className="w-full max-w-lg mx-auto rounded-2xl p-4 sm:p-6 overflow-auto" style={{ maxHeight: '90vh' }}>
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold">Add Document</DialogTitle>
           <DialogDescription className="text-sm text-gray-500 mb-4">
@@ -118,6 +146,16 @@ export default function UploadDocument() {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {/* Debug form state */}
+            {process.env.NODE_ENV === 'development' && (
+              <div className="text-xs text-gray-500 p-2 bg-gray-100 rounded">
+                Form errors: {JSON.stringify(form.formState.errors)}
+                <br />
+                Is valid: {form.formState.isValid ? 'Yes' : 'No'}
+                <br />
+                File selected: {form.watch('file') ? 'Yes' : 'No'}
+              </div>
+            )}
             {/* Date picker */}
             <FormField
               control={form.control}
@@ -226,7 +264,11 @@ export default function UploadDocument() {
                     <Input
                       type="file"
                       accept="image/*,.pdf"
-                      onChange={(e) => field.onChange(e.target.files?.[0])}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        console.log("File selected:", file);
+                        field.onChange(file);
+                      }}
                       className="h-10 text-sm px-3"
                     />
                   </FormControl>
