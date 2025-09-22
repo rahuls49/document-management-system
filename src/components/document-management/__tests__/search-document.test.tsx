@@ -64,7 +64,7 @@ jest.mock('@/components/ui/card', () => ({
 	Card: ({ children }: { children?: React.ReactNode }) => React.createElement('div', {}, children),
 	CardContent: ({ children }: { children?: React.ReactNode }) => React.createElement('div', {}, children),
 	CardHeader: ({ children }: { children?: React.ReactNode }) => React.createElement('div', {}, children),
-	CardTitle: ({ children }: { children?: React.ReactNode }) => React.createElement('div', {}, children),
+	CardTitle: ({ children, className }: { children?: React.ReactNode; className?: string }) => React.createElement('div', { className }, children),
 }));
 jest.mock('@/components/ui/badge', () => ({
 	Badge: ({ children, ...props }: { children?: React.ReactNode; [key: string]: unknown }) => React.createElement('span', props, children),

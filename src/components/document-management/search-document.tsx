@@ -378,8 +378,14 @@ export default function SearchDocument() {
             {searchResults.length > 0 && (
                 <Card>
                     <CardHeader>
-                        <CardTitle>
-                            Search Results ({totalRecords} documents found)
+                        <CardTitle className="flex items-center justify-between">
+                            <span>Search Results ({totalRecords} documents found)</span>
+                            <Button size="sm"
+                                onClick={() => {toast.success("Downloading all documents!")}}
+                                >
+                                <Download className="h-4 w-4 mr-2" />
+                                Download All
+                            </Button>
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
