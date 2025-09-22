@@ -5,35 +5,19 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get('auth-token')?.value
   const { pathname } = request.nextUrl
 
-  const isLoggedIn = !!token
-
-  // Protected routes that require authentication
-  const protectedRoutes = ['/document-management', '/users']
-  const isProtected = protectedRoutes.some(route => pathname.startsWith(route))
-
-  // If trying to access protected route without login, redirect to login
-  if (isProtected && !isLoggedIn) {
-    return NextResponse.redirect(new URL('/', request.url))
+  // Redirect away from login page if logged in
+  if (token && pathname === '/') {
+    return NextResponse.redirect(new URL('/document-management', request.url))
   }
 
-  // If logged in and on login page, redirect to dashboard
-  if (pathname === '/' && isLoggedIn) {
-    return NextResponse.redirect(new URL('/document-management', request.url))
+  // Redirect to login if not logged in and trying to access a protected page
+  if (!token && (pathname.startsWith('/document-management') || pathname.startsWith('/users'))) {
+    return NextResponse.redirect(new URL('/', request.url))
   }
 
   return NextResponse.next()
 }
 
-// Configure which paths the middleware runs on
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
-  ],
+  matcher: ['/', '/document-management/:path*', '/users/:path*'],
 }
