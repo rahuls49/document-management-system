@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -32,7 +32,9 @@ type FormData = z.infer<typeof formSchema>;
 export default function UploadDocument() {
   const [open, setOpen] = useState(false);
   const [tagInput, setTagInput] = useState("");
-  const [existingTags] = useState(["work_order", "invoice", "report"]); // Mock existing tags
+  const [existingTags, setExistingTags] = useState<{ id: string; label: string }[]>([]);
+  const [loadingTags, setLoadingTags] = useState(false);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -46,13 +48,55 @@ export default function UploadDocument() {
     },
   });
 
-  // Reset form when dialog opens
+  // Reset form and clear tags when dialog opens
   useEffect(() => {
     if (open) {
       form.reset();
+      setExistingTags([]);
     }
   }, [open, form]);
-  // Get token from zustand store
+
+  // Fetch tags from API
+  const fetchTags = async (term: string) => {
+    setLoadingTags(true);
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/documentManagement/documentTags`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          token
+        },
+        body: JSON.stringify({ term }),
+      });
+      const res = await response.json();
+      if (res.status && Array.isArray(res.data)) {
+        setExistingTags(res.data);
+      } else {
+        setExistingTags([]);
+      }
+    } catch (error) {
+      setExistingTags([]);
+    }
+    setLoadingTags(false);
+  };
+
+  // Debounced tag search (only fetch if input is not empty)
+  useEffect(() => {
+    if (!open) return;
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      const term = tagInput.trim();
+      if (term) {
+        fetchTags(term);
+      } else {
+        setExistingTags([]);
+      }
+    }, 400);
+    // Cleanup
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [tagInput, open]);
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { userData } = require("@/lib/store").useAuthStore();
   const { token, user_id, user_name } = userData;
@@ -146,16 +190,6 @@ export default function UploadDocument() {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {/* Debug form state */}
-            {process.env.NODE_ENV === 'development' && (
-              <div className="text-xs text-gray-500 p-2 bg-gray-100 rounded">
-                Form errors: {JSON.stringify(form.formState.errors)}
-                <br />
-                Is valid: {form.formState.isValid ? 'Yes' : 'No'}
-                <br />
-                File selected: {form.watch('file') ? 'Yes' : 'No'}
-              </div>
-            )}
             {/* Date picker */}
             <FormField
               control={form.control}
@@ -213,7 +247,7 @@ export default function UploadDocument() {
                   <FormControl>
                     <div className="space-y-2">
                       <Input
-                        placeholder="Add tag and press Enter"
+                        placeholder="Search or add tag, press Enter"
                         value={tagInput}
                         onChange={(e) => setTagInput(e.target.value)}
                         onKeyDown={handleTagInputKeyDown}
@@ -227,11 +261,17 @@ export default function UploadDocument() {
                         ))}
                       </div>
                       <div className="text-sm text-gray-400 mt-2">
-                        Existing tags: {existingTags.map(tag => (
-                          <Badge key={tag} variant="outline" className="cursor-pointer mr-2 px-2 py-0.5 text-sm" onClick={() => addTag(tag)}>
-                            {tag}
-                          </Badge>
-                        ))}
+                        {loadingTags ? (
+                          <span>Loading tags...</span>
+                        ) : (
+                          <>
+                            Suggested tags: {existingTags.length === 0 ? <span>No tags found.</span> : existingTags.map(tag => (
+                              <Badge key={tag.id} variant="outline" className="cursor-pointer mr-2 px-2 py-0.5 text-sm" onClick={() => addTag(tag.label)}>
+                                {tag.label}
+                              </Badge>
+                            ))}
+                          </>
+                        )}
                       </div>
                     </div>
                   </FormControl>
