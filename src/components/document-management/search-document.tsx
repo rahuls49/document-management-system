@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -128,6 +128,12 @@ export default function SearchDocument() {
         }
     }, [userData, filters, fromDate, toDate, currentPage, recordsPerPage]);
 
+    // Ref to store the latest handleSearch function
+    const handleSearchRef = useRef(handleSearch);
+    useEffect(() => {
+        handleSearchRef.current = handleSearch;
+    }, [handleSearch]);
+
     // Handle pagination
     const totalPages = Math.ceil(totalRecords / recordsPerPage);
 
@@ -135,21 +141,20 @@ export default function SearchDocument() {
         setCurrentPage(page);
     };
 
-    // Re-search when page changes
-    useEffect(() => {
-        if (searchResults.length > 0) {
-            handleSearch();
-        }
-    }, [currentPage, handleSearch, searchResults.length]);
-
     // Auto-search on component mount or when user changes
     useEffect(() => {
         if (userData?.token && userData?.user_name) {
             // Reset to first page when user changes or component mounts
             setCurrentPage(1);
-            handleSearch();
         }
-    }, [userData?.token, userData?.user_name, handleSearch]);
+    }, [userData?.token, userData?.user_name]);
+
+    // Handle search when page or user changes
+    useEffect(() => {
+        if (userData?.token && userData?.user_name) {
+            handleSearchRef.current();
+        }
+    }, [currentPage, userData?.token, userData?.user_name]);
 
     // Add tag
     const addTag = () => {
