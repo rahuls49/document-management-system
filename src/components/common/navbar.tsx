@@ -165,12 +165,12 @@ const NotificationMenu = ({
 // User Menu Component
 const UserMenu = ({
     userName = 'John Doe',
-    userEmail = 'john@example.com',
+    userId = 'john@example.com',
     userAvatar,
     onItemClick
 }: {
     userName?: string;
-    userEmail?: string;
+    userId?: string;
     userAvatar?: string;
     onItemClick?: (item: string) => void;
 }) => (
@@ -192,7 +192,7 @@ const UserMenu = ({
                 <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">{userName}</p>
                     <p className="text-xs leading-none text-muted-foreground">
-                        {userEmail}
+                        {userId}
                     </p>
                 </div>
             </DropdownMenuLabel>
@@ -235,10 +235,8 @@ export const Navbar = React.forwardRef<HTMLElement, Navbar05Props>(
         {
             className,
             logo = <Logo />,
-            logoHref = '/',
+            logoHref = '/document-management',
             navigationLinks = defaultNavigationLinks,
-            userName = 'John Doe',
-            userEmail = 'john@example.com',
             userAvatar,
             notificationCount = 3,
             onNavItemClick,
@@ -249,6 +247,12 @@ export const Navbar = React.forwardRef<HTMLElement, Navbar05Props>(
         },
         ref
     ) => {
+
+        // Get user data from zustand store
+        const { userData } = require('@/lib/store').useAuthStore();
+        const userName = userData?.user_name || 'John Doe';
+        const userId = userData?.user_id || 'john@example.com';
+
         const [isMobile, setIsMobile] = useState(false);
         const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
         const containerRef = useRef<HTMLElement>(null);
@@ -361,7 +365,7 @@ export const Navbar = React.forwardRef<HTMLElement, Navbar05Props>(
                                 <div className="text-2xl">
                                     {logo}
                                 </div>
-                                <span className="hidden font-bold text-xl sm:inline-block">shadcn.io</span>
+                                <span className="hidden font-bold text-lg sm:inline-block">DMS</span>
                             </Link>
 
                             {/* Navigation menu */}
@@ -406,7 +410,7 @@ export const Navbar = React.forwardRef<HTMLElement, Navbar05Props>(
                         {/* User menu */}
                         <UserMenu
                             userName={userName}
-                            userEmail={userEmail}
+                            userId={userId}
                             userAvatar={userAvatar}
                             onItemClick={onUserItemClick}
                         />
