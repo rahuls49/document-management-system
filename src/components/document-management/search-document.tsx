@@ -56,12 +56,22 @@ export default function SearchDocument() {
         from_date: "",
         to_date: "",
         tags: [],
-        uploaded_by: "",
+        uploaded_by: userData?.user_id || "", // Pre-populate with current user
         start: 0,
         length: recordsPerPage,
         filterId: "",
         search: { value: "" }
     });
+
+    // Update uploaded_by filter when userData changes
+    useEffect(() => {
+        if (userData?.user_name) {
+            setFilters(prev => ({
+                ...prev,
+                uploaded_by: userData.user_name
+            }));
+        }
+    }, [userData?.user_name]);
 
     // Date states
     const [fromDate, setFromDate] = useState<Date>();
@@ -85,7 +95,10 @@ export default function SearchDocument() {
                 length: recordsPerPage
             };
 
-            const response = await fetch("https://apis.allsoft.co/api/documentManagement/searchDocumentEntry", {
+            console.log("Search payload:", searchPayload);
+            console.log("User data:", userData);
+
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/documentManagement/searchDocumentEntry`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -129,12 +142,14 @@ export default function SearchDocument() {
         }
     }, [currentPage]);
 
-    // Auto-search on component mount
+    // Auto-search on component mount or when user changes
     useEffect(() => {
-        if (userData?.token) {
+        if (userData?.token && userData?.user_name) {
+            // Reset to first page when user changes or component mounts
+            setCurrentPage(1);
             handleSearch();
         }
-    }, [userData?.token]);
+    }, [userData?.token, userData?.user_name]);
 
     // Add tag
     const addTag = () => {
