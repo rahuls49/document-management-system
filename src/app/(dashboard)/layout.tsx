@@ -6,7 +6,7 @@ export default function DocumentManagementLayout({
   children: React.ReactNode;
 }>) {
   return <>
-    <main>
+    <main className="h-screen">
       <Navbar />
       {children}
     </main>
