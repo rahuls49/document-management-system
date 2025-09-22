@@ -6,7 +6,7 @@ export default function DocumentManagementLayout({
   children: React.ReactNode;
 }>) {
   return <>
-    <main className="h-screen">
+    <main className="min-h-screen bg-linear-to-br from-cyan-100 via-blue-100 to-indigo-300">
       <Navbar />
       {children}
     </main>

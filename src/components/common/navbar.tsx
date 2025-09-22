@@ -350,10 +350,10 @@ export const Navbar = React.forwardRef<HTMLElement, Navbar05Props>(
                                                         href={link.href || "#"}
                                                         onClick={(e) => handleMobileNavigationClick(e, link.href)}
                                                         className={cn(
-                                                            "flex w-full items-center rounded-md px-3 py-2 text-sm font-medium transition-colors focus:bg-accent focus:text-accent-foreground cursor-pointer no-underline text-left",
+                                                            "flex w-full items-center rounded-md px-3 py-2 text-sm font-medium transition-colors focus:bg-accent focus:text-black cursor-pointer no-underline text-left",
                                                             pathname === link.href 
-                                                                ? "bg-accent text-accent-foreground" 
-                                                                : "hover:bg-accent hover:text-accent-foreground"
+                                                                ? "bg-accent text-black" 
+                                                                : "hover:bg-accent hover:text-black"
                                                         )}
                                                     >
                                                         {link.label}
