@@ -71,6 +71,8 @@ export default function LoginForm() {
           // Store all received information in the store
           if (data.data) {
             setUserData(data.data);
+            // Set auth cookie for middleware
+            document.cookie = `auth-token=${data.data.token}; path=/; max-age=${7 * 24 * 60 * 60}; secure; samesite=strict`;
           }
           toast.success('Login successful!');
           router.push('/document-management');

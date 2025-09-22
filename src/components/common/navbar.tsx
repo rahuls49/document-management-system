@@ -249,7 +249,7 @@ export const Navbar = React.forwardRef<HTMLElement, Navbar05Props>(
     ) => {
 
         // Get user data from zustand store
-        const { userData } = useAuthStore();
+        const { userData, clearUserData } = useAuthStore();
         const userName = userData?.user_name || 'John Doe';
         const userId = userData?.user_id || 'john@example.com';
 
@@ -305,6 +305,16 @@ export const Navbar = React.forwardRef<HTMLElement, Navbar05Props>(
                 router.push(href);
                 setIsMobileMenuOpen(false);
             }
+        };
+
+        // User menu handler
+        const handleUserItemClick = (item: string) => {
+            if (item === 'logout') {
+                clearUserData();
+                document.cookie = 'auth-token=; path=/; max-age=0';
+                router.push('/');
+            }
+            onUserItemClick?.(item);
         };
 
         return (
@@ -412,7 +422,7 @@ export const Navbar = React.forwardRef<HTMLElement, Navbar05Props>(
                             userName={userName}
                             userId={userId}
                             userAvatar={userAvatar}
-                            onItemClick={onUserItemClick}
+                            onItemClick={handleUserItemClick}
                         />
                     </div>
                 </div>
