@@ -29,7 +29,8 @@ jest.mock('@/lib/store', () => ({
 // Mock dropdown components to render inline instead of portals
 jest.mock('@/components/ui/dropdown-menu', () => ({
   DropdownMenu: ({ children }: { children: React.ReactNode }) => <div data-testid="dropdown-menu">{children}</div>,
-  DropdownMenuTrigger: ({ children, asChild, ...props }: { children: React.ReactNode; asChild?: boolean; [key: string]: unknown }) => <div {...props}>{children}</div>,
+  DropdownMenuTrigger: ({ children, asChild, ...props }: { children: React.ReactNode; asChild?: boolean; [key: string]: unknown }) => 
+    asChild ? React.cloneElement(children as React.ReactElement, props) : <div {...props}>{children}</div>,
   DropdownMenuContent: ({ children }: { children: React.ReactNode }) => <div data-testid="dropdown-content">{children}</div>,
   DropdownMenuItem: ({ children, onClick, ...props }: { children: React.ReactNode; onClick?: () => void; [key: string]: unknown }) => <div onClick={onClick} {...props}>{children}</div>,
   DropdownMenuLabel: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
@@ -39,7 +40,8 @@ jest.mock('@/components/ui/dropdown-menu', () => ({
 // Mock popover components similarly
 jest.mock('@/components/ui/popover', () => ({
   Popover: ({ children }: { children: React.ReactNode }) => <div data-testid="popover">{children}</div>,
-  PopoverTrigger: ({ children, asChild, ...props }: { children: React.ReactNode; asChild?: boolean; [key: string]: unknown }) => <div {...props}>{children}</div>,
+  PopoverTrigger: ({ children, asChild, ...props }: { children: React.ReactNode; asChild?: boolean; [key: string]: unknown }) => 
+    asChild ? React.cloneElement(children as React.ReactElement, props) : <div {...props}>{children}</div>,
   PopoverContent: ({ children }: { children: React.ReactNode }) => <div data-testid="popover-content">{children}</div>,
 }));
 

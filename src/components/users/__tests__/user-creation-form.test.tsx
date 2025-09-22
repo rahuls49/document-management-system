@@ -156,7 +156,7 @@ describe('UserCreationForm', () => {
 	it('shows validation error for empty username', async () => {
 		render(<UserCreationForm />);
 
-		const usernameInput = screen.getByPlaceholderText('Enter username');
+		screen.getByPlaceholderText('Enter username');
 		const passwordInput = screen.getByPlaceholderText('Enter password');
 		const confirmPasswordInput = screen.getByPlaceholderText('Confirm password');
 
@@ -196,7 +196,7 @@ describe('UserCreationForm', () => {
 		render(<UserCreationForm />);
 
 		const usernameInput = screen.getByPlaceholderText('Enter username');
-		const passwordInput = screen.getByPlaceholderText('Enter password');
+		screen.getByPlaceholderText('Enter password');
 		const confirmPasswordInput = screen.getByPlaceholderText('Confirm password');
 
 		fireEvent.change(usernameInput, { target: { value: 'testuser' } });

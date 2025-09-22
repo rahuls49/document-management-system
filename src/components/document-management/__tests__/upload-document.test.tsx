@@ -38,7 +38,7 @@ jest.mock('react-hook-form', () => ({
     return {
       control: {},
       formState: { errors: {} },
-      handleSubmit: jest.fn((submitFn: any) => async (event: any) => {
+      handleSubmit: jest.fn((submitFn: (data: unknown) => void | Promise<void>) => async (event: React.FormEvent) => {
         event.preventDefault();
         // Get current values from DOM
         const majorHeadInput = document.querySelector('input[name="major_head"]') as HTMLInputElement;
@@ -56,8 +56,8 @@ jest.mock('react-hook-form', () => ({
         if (field === 'tags') return tags;
         return '';
       }),
-      setValue: jest.fn((field: string, value: any) => {
-        if (field === 'tags') {
+      setValue: jest.fn((field: string, value: unknown) => {
+        if (field === 'tags' && Array.isArray(value)) {
           tags.splice(0, tags.length, ...value);
         }
       }),
@@ -91,8 +91,8 @@ jest.mock('react-hook-form', () => ({
 jest.mock('@/components/ui/form', () => ({
 	Form: ({ children }: { children?: React.ReactNode }) => React.createElement(React.Fragment, {}, children),
 	FormControl: ({ children }: { children?: React.ReactNode }) => React.createElement('div', {}, children),
-	FormField: ({ render, name }: { render: (props: any) => React.ReactNode; name: string }) => {
-		let defaultValue: any = '';
+	FormField: ({ render, name }: { render: (props: { field: { name: string; value: unknown; onChange: jest.Mock; onBlur: jest.Mock }; form: { watch: jest.Mock; getValues: jest.Mock; setValue: jest.Mock } }) => React.ReactNode; name: string }) => {
+		let defaultValue: unknown = '';
 		if (name === 'document_date') {
 			defaultValue = new Date();
 		} else if (name === 'tags') {
@@ -145,7 +145,10 @@ import { useAuthStore } from '../../../lib/store';
 
 const mockUseAuthStore = useAuthStore as jest.MockedFunction<typeof useAuthStore>;
 
-const mockUseForm = require('react-hook-form').useForm;
+import { useForm } from 'react-hook-form';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const mockUseForm = useForm as jest.MockedFunction<any>;
 
 describe('UploadDocument', () => {
 	beforeEach(() => {
@@ -167,7 +170,7 @@ describe('UploadDocument', () => {
 		// Mock form with basic functionality
 		mockUseForm.mockReturnValue({
 			control: {},
-			handleSubmit: jest.fn((fn) => (e: any) => {
+			handleSubmit: jest.fn((fn: (data: unknown) => void | Promise<void>) => (e: React.FormEvent) => {
 				e.preventDefault();
 				const formData = {
 					document_date: new Date(),
@@ -192,7 +195,7 @@ describe('UploadDocument', () => {
 		});
 
 		// Mock fetch for different API endpoints
-		global.fetch = jest.fn((input: RequestInfo | URL, options?: RequestInit) => {
+		global.fetch = jest.fn((input: RequestInfo | URL) => {
 			const url = typeof input === 'string' ? input : input.toString();
 			if (url.includes('/documentManagement/documentTags')) {
 				// Mock tag search API
