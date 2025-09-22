@@ -89,7 +89,7 @@ jest.mock('react-hook-form', () => ({
 
 // Mock form components
 jest.mock('@/components/ui/form', () => ({
-	Form: ({ children, ...props }: { children?: React.ReactNode; [key: string]: unknown }) => React.createElement('form', props, children),
+	Form: ({ children }: { children?: React.ReactNode }) => React.createElement(React.Fragment, {}, children),
 	FormControl: ({ children }: { children?: React.ReactNode }) => React.createElement('div', {}, children),
 	FormField: ({ render, name }: { render: (props: any) => React.ReactNode; name: string }) => {
 		let defaultValue: any = '';

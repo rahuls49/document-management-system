@@ -132,12 +132,6 @@ export default function UploadDocument() {
       })
     );
 
-    // Debug output
-    console.log("FormData for upload:");
-    for (const [key, value] of formData.entries()) {
-      console.log(key, value);
-    }
-
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/documentManagement/saveDocumentEntry`, {
         method: "POST",
@@ -147,7 +141,6 @@ export default function UploadDocument() {
         },
       });
       const responseData = await response.json();
-      console.log({ responseData });
       if (responseData?.status) {
         setOpen(false);
         form.reset();
@@ -308,7 +301,6 @@ export default function UploadDocument() {
                       accept="image/*,.pdf"
                       onChange={(e) => {
                         const file = e.target.files?.[0];
-                        console.log("File selected:", file);
                         field.onChange(file);
                       }}
                       className="h-10 text-sm px-3"

@@ -36,7 +36,7 @@ describe("DocumentManagementPage", () => {
     expect(mainDiv).toHaveClass(
       "flex",
       "flex-col",
-      "my-4",
+      "py-6",
       "mx-0",
       "sm:mx-4",
       "md:mx-8",
