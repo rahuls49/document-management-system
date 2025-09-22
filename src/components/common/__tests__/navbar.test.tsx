@@ -13,7 +13,7 @@ if (typeof global.ResizeObserver === 'undefined') {
 // Mock next/navigation hooks
 jest.mock('next/navigation', () => ({
   useRouter: () => ({ push: jest.fn() }),
-  usePathname: () => '/document-management',
+  usePathname: jest.fn(() => '/document-management'),
 }));
 
 // Mock zustand store
@@ -29,9 +29,9 @@ jest.mock('@/lib/store', () => ({
 // Mock dropdown components to render inline instead of portals
 jest.mock('@/components/ui/dropdown-menu', () => ({
   DropdownMenu: ({ children }: { children: React.ReactNode }) => <div data-testid="dropdown-menu">{children}</div>,
-  DropdownMenuTrigger: ({ children, asChild, ...props }: { children: React.ReactNode; asChild?: boolean; [key: string]: any }) => <div {...props}>{children}</div>,
+  DropdownMenuTrigger: ({ children, asChild, ...props }: { children: React.ReactNode; asChild?: boolean; [key: string]: unknown }) => <div {...props}>{children}</div>,
   DropdownMenuContent: ({ children }: { children: React.ReactNode }) => <div data-testid="dropdown-content">{children}</div>,
-  DropdownMenuItem: ({ children, onClick, ...props }: { children: React.ReactNode; onClick?: () => void; [key: string]: any }) => <div onClick={onClick} {...props}>{children}</div>,
+  DropdownMenuItem: ({ children, onClick, ...props }: { children: React.ReactNode; onClick?: () => void; [key: string]: unknown }) => <div onClick={onClick} {...props}>{children}</div>,
   DropdownMenuLabel: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   DropdownMenuSeparator: () => <div />,
 }));
@@ -39,16 +39,16 @@ jest.mock('@/components/ui/dropdown-menu', () => ({
 // Mock popover components similarly
 jest.mock('@/components/ui/popover', () => ({
   Popover: ({ children }: { children: React.ReactNode }) => <div data-testid="popover">{children}</div>,
-  PopoverTrigger: ({ children, asChild, ...props }: { children: React.ReactNode; asChild?: boolean; [key: string]: any }) => <div {...props}>{children}</div>,
+  PopoverTrigger: ({ children, asChild, ...props }: { children: React.ReactNode; asChild?: boolean; [key: string]: unknown }) => <div {...props}>{children}</div>,
   PopoverContent: ({ children }: { children: React.ReactNode }) => <div data-testid="popover-content">{children}</div>,
 }));
 
 import React from 'react';
 import { render, screen, fireEvent, within } from '@testing-library/react';
-import { act } from 'react-dom/test-utils';
 import '@testing-library/jest-dom';
 
 import { Navbar } from '../navbar';
+import { usePathname } from 'next/navigation';
 
 
 describe('Navbar', () => {
@@ -95,8 +95,7 @@ describe('Navbar', () => {
 
   it('calls navigation handler on link click', () => {
     // Override usePathname for this test
-    const nextNavigation = require('next/navigation');
-    nextNavigation.usePathname = () => '/';
+    jest.mocked(usePathname).mockReturnValue('/');
     const handleNavItemClick = jest.fn();
     render(<Navbar onNavItemClick={handleNavItemClick} />);
     fireEvent.click(screen.getByRole('link', { name: /Document Manager/i }));

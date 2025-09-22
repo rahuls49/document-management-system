@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -79,7 +79,7 @@ export default function SearchDocument() {
     const [tagInput, setTagInput] = useState("");
 
     // Handle search form submission
-    const handleSearch = async () => {
+    const handleSearch = useCallback(async () => {
         if (!userData?.token) {
             toast.error("Authentication token not found");
             return;
@@ -126,7 +126,7 @@ export default function SearchDocument() {
         } finally {
             setIsSearching(false);
         }
-    };
+    }, [userData, filters, fromDate, toDate, currentPage, recordsPerPage]);
 
     // Handle pagination
     const totalPages = Math.ceil(totalRecords / recordsPerPage);
@@ -140,7 +140,7 @@ export default function SearchDocument() {
         if (searchResults.length > 0) {
             handleSearch();
         }
-    }, [currentPage]);
+    }, [currentPage, handleSearch, searchResults.length]);
 
     // Auto-search on component mount or when user changes
     useEffect(() => {
@@ -149,7 +149,7 @@ export default function SearchDocument() {
             setCurrentPage(1);
             handleSearch();
         }
-    }, [userData?.token, userData?.user_name]);
+    }, [userData?.token, userData?.user_name, handleSearch]);
 
     // Add tag
     const addTag = () => {

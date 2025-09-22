@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useEffect, useState, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { BellIcon, HelpCircleIcon, UserIcon, ChevronDownIcon } from 'lucide-react';
+import { BellIcon, HelpCircleIcon, ChevronDownIcon } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import {
@@ -27,7 +27,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import type { ComponentProps } from 'react';
+import { useAuthStore } from '@/lib/store';
 
 // Simple logo component for the navbar
 const Logo = (props: React.SVGAttributes<SVGElement>) => {
@@ -249,7 +249,7 @@ export const Navbar = React.forwardRef<HTMLElement, Navbar05Props>(
     ) => {
 
         // Get user data from zustand store
-        const { userData } = require('@/lib/store').useAuthStore();
+        const { userData } = useAuthStore();
         const userName = userData?.user_name || 'John Doe';
         const userId = userData?.user_id || 'john@example.com';
 
@@ -420,5 +420,7 @@ export const Navbar = React.forwardRef<HTMLElement, Navbar05Props>(
         );
     }
 );
+
+Navbar.displayName = 'Navbar';
 
 export { Logo, HamburgerIcon, InfoMenu, NotificationMenu, UserMenu };

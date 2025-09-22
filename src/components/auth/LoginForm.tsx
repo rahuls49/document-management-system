@@ -51,7 +51,7 @@ export default function LoginForm() {
     });
   };
 
-  const setUserData = useAuthStore((state: any) => state.setUserData);
+  const setUserData = useAuthStore((state) => state.setUserData);
   const verifyOTP = () => {
     if (!otp || otp.length !== 6) {
       toast.error('Please enter a valid 6-digit OTP');

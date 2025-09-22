@@ -13,7 +13,7 @@ export interface UserData {
   user_id: string;
   user_name: string;
   roles: Role[];
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface AuthState {

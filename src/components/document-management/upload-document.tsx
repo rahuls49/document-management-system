@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -17,6 +17,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import toast from "react-hot-toast";
+import { useAuthStore } from "@/lib/store";
 
 const formSchema = z.object({
   document_date: z.date(),
@@ -56,8 +57,12 @@ export default function UploadDocument() {
     }
   }, [open, form]);
 
+  const { userData } = useAuthStore();
+  const token = userData?.token || '';
+  const user_id = userData?.user_id || '';
+
   // Fetch tags from API
-  const fetchTags = async (term: string) => {
+  const fetchTags = useCallback(async (term: string) => {
     setLoadingTags(true);
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/documentManagement/documentTags`, {
@@ -74,11 +79,11 @@ export default function UploadDocument() {
       } else {
         setExistingTags([]);
       }
-    } catch (error) {
+    } catch {
       setExistingTags([]);
     }
     setLoadingTags(false);
-  };
+  }, [token]);
 
   // Debounced tag search (only fetch if input is not empty)
   useEffect(() => {
@@ -96,10 +101,7 @@ export default function UploadDocument() {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [tagInput, open]);
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { userData } = require("@/lib/store").useAuthStore();
-  const { token, user_id, user_name } = userData;
+  }, [tagInput, open, fetchTags]);
 
   const onSubmit = async (data: FormData) => {
     // Validate required fields
@@ -153,7 +155,7 @@ export default function UploadDocument() {
       } else {
         toast.error("Failed to upload document.");
       }
-    } catch (error) {
+    } catch {
       toast.error("An error occurred during upload.");
     }
   };

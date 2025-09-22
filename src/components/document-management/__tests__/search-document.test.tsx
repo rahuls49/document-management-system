@@ -37,46 +37,46 @@ Object.defineProperty(document, 'body', {
 
 import React from 'react';
 jest.mock('@/components/ui/button', () => ({
-	Button: ({ children, ...props }: any) => React.createElement('button', props, children),
+	Button: ({ children, ...props }: { children?: React.ReactNode; [key: string]: unknown }) => React.createElement('button', props, children),
 }));
 jest.mock('@/components/ui/input', () => ({
-	Input: (props: any) => React.createElement('input', props),
+	Input: (props: { [key: string]: unknown }) => React.createElement('input', props),
 }));
 jest.mock('@/components/ui/label', () => ({
-	Label: ({ children, ...props }: any) => React.createElement('label', props, children),
+	Label: ({ children, ...props }: { children?: React.ReactNode; [key: string]: unknown }) => React.createElement('label', props, children),
 }));
 jest.mock('@/components/ui/select', () => ({
-	Select: ({ children }: any) => React.createElement('div', { 'data-testid': 'select' }, children),
-	SelectContent: ({ children }: any) => React.createElement('div', {}, children),
-	SelectItem: ({ children, ...props }: any) => React.createElement('option', props, children),
-	SelectTrigger: ({ children }: any) => React.createElement('button', {}, children),
-	SelectValue: ({ placeholder }: any) => React.createElement('span', {}, placeholder),
+	Select: ({ children }: { children?: React.ReactNode }) => React.createElement('div', { 'data-testid': 'select' }, children),
+	SelectContent: ({ children }: { children?: React.ReactNode }) => React.createElement('div', {}, children),
+	SelectItem: ({ children, ...props }: { children?: React.ReactNode; [key: string]: unknown }) => React.createElement('option', props, children),
+	SelectTrigger: ({ children }: { children?: React.ReactNode }) => React.createElement('button', {}, children),
+	SelectValue: ({ placeholder }: { placeholder?: string }) => React.createElement('span', {}, placeholder),
 }));
 jest.mock('@/components/ui/calendar', () => ({
 	Calendar: () => React.createElement('div', {}, 'Calendar'),
 }));
 jest.mock('@/components/ui/popover', () => ({
-	Popover: ({ children }: any) => React.createElement('div', {}, children),
-	PopoverContent: ({ children }: any) => React.createElement('div', {}, children),
-	PopoverTrigger: ({ children }: any) => React.createElement('div', {}, children),
+	Popover: ({ children }: { children?: React.ReactNode }) => React.createElement('div', {}, children),
+	PopoverContent: ({ children }: { children?: React.ReactNode }) => React.createElement('div', {}, children),
+	PopoverTrigger: ({ children }: { children?: React.ReactNode }) => React.createElement('div', {}, children),
 }));
 jest.mock('@/components/ui/card', () => ({
-	Card: ({ children }: any) => React.createElement('div', {}, children),
-	CardContent: ({ children }: any) => React.createElement('div', {}, children),
-	CardHeader: ({ children }: any) => React.createElement('div', {}, children),
-	CardTitle: ({ children }: any) => React.createElement('div', {}, children),
+	Card: ({ children }: { children?: React.ReactNode }) => React.createElement('div', {}, children),
+	CardContent: ({ children }: { children?: React.ReactNode }) => React.createElement('div', {}, children),
+	CardHeader: ({ children }: { children?: React.ReactNode }) => React.createElement('div', {}, children),
+	CardTitle: ({ children }: { children?: React.ReactNode }) => React.createElement('div', {}, children),
 }));
 jest.mock('@/components/ui/badge', () => ({
-	Badge: ({ children, ...props }: any) => React.createElement('span', props, children),
+	Badge: ({ children, ...props }: { children?: React.ReactNode; [key: string]: unknown }) => React.createElement('span', props, children),
 }));
 jest.mock('@/components/ui/pagination', () => ({
-	Pagination: ({ children }: any) => React.createElement('div', {}, children),
-	PaginationContent: ({ children }: any) => React.createElement('div', {}, children),
+	Pagination: ({ children }: { children?: React.ReactNode }) => React.createElement('div', {}, children),
+	PaginationContent: ({ children }: { children?: React.ReactNode }) => React.createElement('div', {}, children),
 	PaginationEllipsis: () => React.createElement('span', {}, '...'),
-	PaginationItem: ({ children }: any) => React.createElement('div', {}, children),
-	PaginationLink: ({ children, ...props }: any) => React.createElement('button', props, children),
-	PaginationNext: ({ children, ...props }: any) => React.createElement('button', props, children),
-	PaginationPrevious: ({ children, ...props }: any) => React.createElement('button', props, children),
+	PaginationItem: ({ children }: { children?: React.ReactNode }) => React.createElement('div', {}, children),
+	PaginationLink: ({ children, ...props }: { children?: React.ReactNode; [key: string]: unknown }) => React.createElement('button', props, children),
+	PaginationNext: ({ children, ...props }: { children?: React.ReactNode; [key: string]: unknown }) => React.createElement('button', props, children),
+	PaginationPrevious: ({ children, ...props }: { children?: React.ReactNode; [key: string]: unknown }) => React.createElement('button', props, children),
 }));
 jest.mock('lucide-react', () => ({
 	CalendarIcon: () => React.createElement('div', {}, 'CalendarIcon'),
@@ -86,7 +86,6 @@ jest.mock('lucide-react', () => ({
 	X: () => React.createElement('div', {}, 'X'),
 }));
 
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import SearchDocument from '../search-document';
 import toast from 'react-hot-toast';
 
@@ -99,14 +98,7 @@ jest.mock('react-hot-toast', () => ({
 	},
 }));
 
-// Mock date-fns
-jest.mock('date-fns', () => ({
-	format: jest.fn().mockImplementation((date, formatStr) => {
-		if (formatStr === 'PPP') return 'January 1, 2023';
-		if (formatStr === 'yyyy-MM-dd') return '2023-01-01';
-		return date.toString();
-	}),
-}));
+import { format } from 'date-fns';
 
 // Mock the store
 jest.mock('../../../lib/store', () => ({
@@ -159,7 +151,6 @@ describe('SearchDocument', () => {
 	});
 
 	it('validates date formatting utility', () => {
-		const { format } = require('date-fns');
 		expect(format).toBeDefined();
 		expect(typeof format).toBe('function');
 
