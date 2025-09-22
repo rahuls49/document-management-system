@@ -16,6 +16,7 @@ import {
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import toast from "react-hot-toast";
 
 const formSchema = z.object({
   document_date: z.date(),
@@ -43,6 +44,10 @@ export default function UploadDocument() {
       document_remarks: "",
     },
   });
+    // Get token from zustand store
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { userData } = require("@/lib/store").useAuthStore();
+    const token = userData?.token;
 
   const onSubmit = async (data: FormData) => {
     const formData = new FormData();
@@ -57,20 +62,27 @@ export default function UploadDocument() {
     }));
 
     try {
-      const response = await fetch("https://apis.allsoft.co/api/documentManagement/saveDocumentEntry", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/documentManagement/saveDocumentEntry`, {
         method: "POST",
         body: formData,
+          headers: {
+            token: token || "",
+          },
       });
-
-      if (response.ok) {
+      const data = await response.json();
+      console.log({data});
+      if (data?.status) {
         console.log("Upload successful");
         setOpen(false);
         form.reset();
+        toast.success("Document uploaded successfully!");
       } else {
         console.error("Upload failed");
+        toast.error("Failed to upload document.");
       }
     } catch (error) {
       console.error("Error uploading:", error);
+      toast.error("An error occurred during upload.");
     }
   };
 
@@ -95,7 +107,7 @@ export default function UploadDocument() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="text-base font-medium px-6 py-2">Upload Document</Button>
+        <Button className="text-sm font-medium px-6 py-2">Upload Document</Button>
       </DialogTrigger>
   <DialogContent className="w-full max-w-lg mx-auto rounded-2xl p-4 sm:p-6 overflow-auto" style={{maxHeight: '90vh'}}> 
         <DialogHeader>
