@@ -320,10 +320,10 @@ export default function UploadDocument() {
             />
             {/* Buttons */}
             <div className="flex justify-end space-x-3 pt-2 w-full px-2">
-              <Button type="button" variant="outline" onClick={() => setOpen(false)} className="h-10 text-sm px-6 border border-gray-300 font-medium w-1/2">
+              <Button type="button" variant="outline" onClick={() => setOpen(false)} className="h-8 text-sm px-6 border border-gray-300 font-medium w-1/2">
                 Cancel
               </Button>
-              <Button type="submit" className="h-10 text-sm px-6 bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-md w-1/2">
+              <Button type="submit" className="h-8 text-sm px-6 bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-md w-1/2">
                 Upload
               </Button>
             </div>
